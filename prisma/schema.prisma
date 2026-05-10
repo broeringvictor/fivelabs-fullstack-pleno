@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,4 +5,224 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+enum CompensationType {
+  FIXED
+  PERCENTAGE
+}
+
+enum LogicalOperator {
+  AND
+  OR
+}
+
+enum ConditionField {
+  TOTAL_VALUE
+  REGION
+  PRODUCT
+  SALESPERSON
+}
+
+enum ConditionOperator {
+  EQ
+  NEQ
+  GT
+  GTE
+  LT
+  LTE
+  IN
+  NOT_IN
+}
+
+enum AppraisalStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime  @default(now()) @db.Timestamptz()
+  updatedAt    DateTime  @updatedAt @db.Timestamptz()
+  deletedAt    DateTime? @db.Timestamptz()
+
+  campaigns  Campaign[]
+  appraisals Appraisal[]
+}
+
+model Salesperson {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  document  String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  sales            Sale[]
+  appraisalResults AppraisalResult[]
+}
+
+model Product {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  sku       String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  sales Sale[]
+}
+
+model Region {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  sales Sale[]
+}
+
+model Campaign {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  name        String
+  description String
+  createdById String    @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @db.Timestamptz()
+  deletedAt   DateTime? @db.Timestamptz()
+
+  createdBy User   @relation(fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  goals     Goal[]
+
+  @@index([createdById])
+}
+
+model Goal {
+  id                   String           @id @default(uuid(7)) @db.Uuid
+  campaignId           String           @db.Uuid
+  name                 String
+  validFrom            DateTime         @db.Timestamptz()
+  validTo              DateTime         @db.Timestamptz()
+  compensationType     CompensationType
+  compensationValue    Decimal          @db.Decimal(18, 4)
+  compensationCurrency String?          @db.VarChar(3)
+  createdAt            DateTime         @default(now()) @db.Timestamptz()
+  updatedAt            DateTime         @updatedAt @db.Timestamptz()
+  deletedAt            DateTime?        @db.Timestamptz()
+
+  campaign         Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  conditionGroups  ConditionGroup[]
+  appraisalResults AppraisalResult[]
+
+  @@index([campaignId])
+}
+
+model ConditionGroup {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  goalId          String          @db.Uuid
+  parentGroupId   String?         @db.Uuid
+  logicalOperator LogicalOperator
+  createdAt       DateTime        @default(now()) @db.Timestamptz()
+  updatedAt       DateTime        @updatedAt @db.Timestamptz()
+  deletedAt       DateTime?       @db.Timestamptz()
+
+  goal       Goal             @relation(fields: [goalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parent     ConditionGroup?  @relation("Tree", fields: [parentGroupId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  children   ConditionGroup[] @relation("Tree")
+  conditions Condition[]
+
+  @@index([goalId])
+  @@index([parentGroupId])
+}
+
+model Condition {
+  id        String            @id @default(uuid(7)) @db.Uuid
+  groupId   String            @db.Uuid
+  field     ConditionField
+  operator  ConditionOperator
+  value     Json              @db.JsonB
+  createdAt DateTime          @default(now()) @db.Timestamptz()
+  updatedAt DateTime          @updatedAt @db.Timestamptz()
+  deletedAt DateTime?         @db.Timestamptz()
+
+  group ConditionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([groupId])
+}
+
+model Sale {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  salespersonId String   @db.Uuid
+  productId     String   @db.Uuid
+  regionId      String   @db.Uuid
+  amount        Decimal  @db.Decimal(18, 2)
+  currency      String   @default("BRL") @db.VarChar(3)
+  soldAt        DateTime @db.Timestamptz()
+  createdAt     DateTime @default(now()) @db.Timestamptz()
+  updatedAt     DateTime @updatedAt @db.Timestamptz()
+
+  salesperson Salesperson @relation(fields: [salespersonId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  region      Region      @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([salespersonId, soldAt])
+  @@index([productId])
+  @@index([regionId])
+}
+
+model Appraisal {
+  id            String          @id @default(uuid(7)) @db.Uuid
+  triggeredById String?         @db.Uuid
+  status        AppraisalStatus @default(PENDING)
+  attempts      Int             @default(0)
+  nextAttemptAt DateTime        @default(now()) @db.Timestamptz()
+  lastError     String?
+  startedAt     DateTime?       @db.Timestamptz()
+  finishedAt    DateTime?       @db.Timestamptz()
+  createdAt     DateTime        @default(now()) @db.Timestamptz()
+  updatedAt     DateTime        @updatedAt @db.Timestamptz()
+
+  triggeredBy      User?             @relation(fields: [triggeredById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  appraisalResults AppraisalResult[]
+
+  @@index([triggeredById])
+  @@index([status, nextAttemptAt])
+}
+
+model AppraisalResult {
+  id               String   @id @default(uuid(7)) @db.Uuid
+  appraisalId      String   @db.Uuid
+  goalId           String   @db.Uuid
+  salespersonId    String   @db.Uuid
+  achievedValue    Decimal  @db.Decimal(18, 2)
+  achievedCurrency String   @db.VarChar(3)
+  goalMet          Boolean
+  payableAmount    Decimal  @db.Decimal(18, 2)
+  payableCurrency  String   @db.VarChar(3)
+  evaluatedAt      DateTime @db.Timestamptz()
+  createdAt        DateTime @default(now()) @db.Timestamptz()
+  updatedAt        DateTime @updatedAt @db.Timestamptz()
+
+  appraisal   Appraisal   @relation(fields: [appraisalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  goal        Goal        @relation(fields: [goalId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  salesperson Salesperson @relation(fields: [salespersonId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([appraisalId, goalId, salespersonId])
+  @@index([appraisalId])
+  @@index([goalId])
+  @@index([salespersonId])
 }
