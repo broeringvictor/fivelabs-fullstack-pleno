@@ -228,5 +228,35 @@ export const openApiSpec = {
         },
       },
     },
+    "/v1/auth/me": {
+      get: {
+        tags: ["Auth"],
+        summary: "Perfil do Usuário Logado",
+        description: "Retorna as informações do usuário associado ao token JWT enviado no cabeçalho.",
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Informações do perfil",
+            content: { 
+              "application/json": { 
+                schema: { $ref: "#/components/schemas/UserInfo" } 
+              } 
+            },
+          },
+          "401": {
+            description: "Token inválido ou ausente",
+            content: { 
+              "application/json": { 
+                schema: { $ref: "#/components/schemas/ErrorResponse" } 
+              } 
+            },
+          },
+        },
+      },
+    },
   },
 } as const;
