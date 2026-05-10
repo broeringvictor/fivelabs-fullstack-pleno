@@ -21,7 +21,7 @@ export class SignInUseCase {
     const valid = await this.hasher.compare(req.password, user.passwordHash);
     if (!valid) return err(new InvariantViolation("Credenciais inválidas"));
 
-    const token = this.tokenIssuer.sign({ sub: user.id, role: user.role });
+    const token = this.tokenIssuer.sign({ sub: user.id, name: user.name, role: user.role });
 
     return ok({
       token,

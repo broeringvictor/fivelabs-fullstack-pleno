@@ -7,8 +7,6 @@ import { SystemClock } from "@/infra/service/clock/system-clock.js";
 import { UuidGenerator } from "@/infra/service/auth/uuid-generator.js";
 import { SignUpUseCase } from "@/application/use-cases/auth/sign-up/sign-up.use-case.js";
 import { SignInUseCase } from "@/application/use-cases/auth/sign-in/sign-in.use-case.js";
-import { SignUpController } from "@/application/use-cases/auth/sign-up/sign-up.controller.js";
-import { SignInController } from "@/application/use-cases/auth/sign-in/sign-in.controller.js";
 
 const userRepo = new PrismaUserRepository(prisma);
 const hasher = new BcryptHasher(env.BCRYPT_ROUNDS);
@@ -18,12 +16,8 @@ const idGenerator = new UuidGenerator();
 
 export const container = {
   tokenIssuer,
-  signUpController: new SignUpController(
-    new SignUpUseCase(userRepo, hasher, tokenIssuer, clock, idGenerator),
-  ),
-  signInController: new SignInController(
-    new SignInUseCase(userRepo, hasher, tokenIssuer),
-  ),
+  signUpUseCase: new SignUpUseCase(userRepo, hasher, tokenIssuer, clock, idGenerator),
+  signInUseCase: new SignInUseCase(userRepo, hasher, tokenIssuer),
 };
 
 export type Container = typeof container;

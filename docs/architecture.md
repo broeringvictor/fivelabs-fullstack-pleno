@@ -10,7 +10,7 @@
 ## 1. Princípios
 
 1. **Dependências apontam para dentro** — domínio não conhece infra; infra implementa contratos da application.
-2. **Vertical slices por feature** — cada use case é uma pasta autocontida (controller + request + response + use case).
+2. **Vertical slices por feature** — cada use case é uma pasta autocontida (request + response + use case). A rota chama o use case diretamente — sem classe controller intermediária.
 3. **Ports na application, adapters na infra** — quem define o contrato é dono dele.
 4. **Domain rico, services magros** — lógica mora nas entidades; domain services só quando a regra cruza várias.
 5. **Convenção > configuração** — todo slice tem o mesmo formato. Copia, renomeia, adapta.
@@ -44,7 +44,6 @@
     │   ├── use-cases/                # ← VERTICAL SLICES
     │   │   ├── campaign/
     │   │   │   ├── create-campaign/
-    │   │   │   │   ├── create-campaign.controller.ts
     │   │   │   │   ├── create-campaign.request.ts      # Yup schema + tipo InferType
     │   │   │   │   ├── create-campaign.response.ts     # DTO de saída
     │   │   │   │   ├── create-campaign.use-case.ts
@@ -54,8 +53,8 @@
     │   │   ├── goal/
     │   │   ├── sale/
     │   │   ├── appraisal/
-    │   │   │   ├── trigger-appraisal/                  # com controller
-    │   │   │   ├── process-appraisal/                  # SEM controller (worker)
+    │   │   │   ├── trigger-appraisal/
+    │   │   │   ├── process-appraisal/                  # SEM rota HTTP (worker)
     │   │   │   └── get-appraisal-status/
     │   │   └── auth/
     │   ├── ports/                    # ← interfaces que use cases consomem
@@ -178,24 +177,15 @@ export class CreateCampaignUseCase {
 ```
 
 ```ts
-// create-campaign.controller.ts
-export class CreateCampaignController {
-  constructor(private readonly useCase: CreateCampaignUseCase) {}
-
-  handle = async (req: Request, res: Response, next: NextFunction) => {
-    const result = await this.useCase.execute(req.body as CreateCampaignRequest);
-    if (result.isErr()) return next(result.error);
-    res.status(201).json(result.value);
-  };
-}
+// na rota (api/routes/v1/campaign.routes.ts)
+router.post('/', validate(createCampaignSchema), async (req, res, next) => {
+  const result = await container.createCampaignUseCase.execute(req.body);
+  if (!result.ok) { next(result.error); return; }
+  res.status(201).json(result.value);
+});
 ```
 
-```ts
-// na rota
-router.post('/', validate(createCampaignSchema), container.createCampaignController.handle);
-```
-
-> **Toda feature nova é uma pasta nova com 4 arquivos.** Nada mais, nada menos.
+> **Toda feature nova é uma pasta nova com 3 arquivos.** A rota chama o use case diretamente — sem classe controller intermediária. Controller seria só um wrapper fino que vaza Express para dentro de `application/`.
 
 ---
 
@@ -282,7 +272,7 @@ RETURNING *;
 | Validação de input  | Yup schema no `*.request.ts` do slice                                       |
 | Validação de domínio| Construtores das entidades/VOs retornam `Result<T, DomainError>`            |
 | Auth                | Middleware Express + `ITokenIssuer` (port)                                  |
-| Erros               | `DomainError` propagado via `Result`; controller passa para `next(err)`     |
+| Erros               | `DomainError` propagado via `Result`; rota passa para `next(err)`           |
 | Logs                | `ILogger` injetado pelo container                                           |
 | Config              | `api/env.ts` valida com Yup no boot — *fail fast*                           |
 | Transações          | `prisma.$transaction([...])` no repositório ou no use case                  |
@@ -308,7 +298,7 @@ Os dois objetivos puxam em direções opostas. A estratégia abaixo é como conc
 | **DI manual, um arquivo só**   | `container.ts` é um arquivo grande e chato — mas é **explícito**. Você lê de cima para baixo e vê o grafo inteiro. Sem decoradores, sem reflexão, sem mágica. |
 | **Repositórios magros**        | Métodos só pelo que o use case precisa (`findActiveByCompany`, `saveWithGoals`). Sem CRUD genérico. Quando aparece duplicação, refatora. |
 | **Mappers como funções puras** | `campaignMapper.toDomain(row)` / `toPersistence(entity)`. Testáveis sem mock, copiáveis entre repositórios. |
-| **Tests onde dói**             | Domínio: 100% (puro, rápido). Use cases: com repos fakes em memória, cobre fluxos. Integração: só nas bordas críticas (outbox, worker, auth). Não testar controller — fino demais. |
+| **Tests onde dói**             | Domínio: 100% (puro, rápido). Use cases: com repos fakes em memória, cobre fluxos. Integração: só nas bordas críticas (outbox, worker, auth). Rotas não têm classe própria — não há o que testar isolado. |
 | **Não construa o que não precisa hoje** | Sem CQRS, sem event sourcing, sem microserviços. Vertical slice + outbox + idempotência já te dá fôlego para 6+ meses. |
 
 ### 7.2 Escala depois — pontos de extensão deixados prontos

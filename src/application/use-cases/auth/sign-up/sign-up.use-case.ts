@@ -41,6 +41,7 @@ export class SignUpUseCase {
 
     const token = this.tokenIssuer.sign({
       sub: userResult.value.id,
+      name: userResult.value.name,
       role: userResult.value.role,
     });
 
