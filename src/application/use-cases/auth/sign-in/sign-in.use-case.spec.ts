@@ -5,14 +5,16 @@ import { InMemoryUserRepository } from "@/application/__tests__/fakes/in-memory-
 import { FakeHasher } from "@/application/__tests__/fakes/fake-hasher.js";
 import { FakeTokenIssuer } from "@/application/__tests__/fakes/fake-token-issuer.js";
 import { FakeClock } from "@/application/__tests__/fakes/fake-clock.js";
+import { FakeIDGenerator } from "@/application/__tests__/fakes/fake-id-generator.js";
 
 async function makeWithUser() {
   const userRepo = new InMemoryUserRepository();
   const hasher = new FakeHasher();
   const tokenIssuer = new FakeTokenIssuer();
   const clock = new FakeClock();
+  const idGenerator = new FakeIDGenerator();
 
-  await new SignUpUseCase(userRepo, hasher, tokenIssuer, clock).execute({
+  await new SignUpUseCase(userRepo, hasher, tokenIssuer, clock, idGenerator).execute({
     name: "Alice",
     email: "alice@example.com",
     password: "secret123",

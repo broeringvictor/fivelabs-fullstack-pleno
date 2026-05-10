@@ -2,6 +2,7 @@ import type { IUserRepository } from "@/application/ports/repositories/i-user.re
 import type { IHasher } from "@/application/ports/crypto/i-hasher.js";
 import type { ITokenIssuer } from "@/application/ports/token/i-token-issuer.js";
 import type { IClock } from "@/application/ports/clock/i-clock.js";
+import type { IIDGenerator } from "@/application/ports/crypto/i-id-generator.js";
 import { User } from "@/domain/entities/user.js";
 import { Conflict } from "@/domain/errors/domain.error.js";
 import { ok, err, type Result } from "@/application/shared/result.js";
@@ -15,6 +16,7 @@ export class SignUpUseCase {
     private readonly hasher: IHasher,
     private readonly tokenIssuer: ITokenIssuer,
     private readonly clock: IClock,
+    private readonly idGenerator: IIDGenerator,
   ) {}
 
   async execute(req: SignUpRequest): Promise<Result<SignUpResponse, DomainError>> {
@@ -25,7 +27,7 @@ export class SignUpUseCase {
     const now = this.clock.now();
 
     const userResult = User.create({
-      id: crypto.randomUUID(),
+      id: this.idGenerator.generate(),
       name: req.name,
       email: req.email,
       passwordHash,

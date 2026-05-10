@@ -6,6 +6,7 @@ const schema = object({
   JWT_SECRET: string().min(32).required(),
   JWT_EXPIRES_IN: string().default("7d"),
   PORT: number().default(3000),
+  BCRYPT_ROUNDS: number().default(12),
   NODE_ENV: string().default("development"),
 });
 

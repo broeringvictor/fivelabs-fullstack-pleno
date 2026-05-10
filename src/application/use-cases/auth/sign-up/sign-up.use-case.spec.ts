@@ -4,6 +4,7 @@ import { InMemoryUserRepository } from "@/application/__tests__/fakes/in-memory-
 import { FakeHasher } from "@/application/__tests__/fakes/fake-hasher.js";
 import { FakeTokenIssuer } from "@/application/__tests__/fakes/fake-token-issuer.js";
 import { FakeClock } from "@/application/__tests__/fakes/fake-clock.js";
+import { FakeIDGenerator } from "@/application/__tests__/fakes/fake-id-generator.js";
 
 const validReq = { name: "Alice", email: "alice@example.com", password: "secret123" };
 
@@ -12,7 +13,8 @@ function make() {
   const hasher = new FakeHasher();
   const tokenIssuer = new FakeTokenIssuer();
   const clock = new FakeClock();
-  const useCase = new SignUpUseCase(userRepo, hasher, tokenIssuer, clock);
+  const idGenerator = new FakeIDGenerator();
+  const useCase = new SignUpUseCase(userRepo, hasher, tokenIssuer, clock, idGenerator);
   return { userRepo, useCase };
 }
 

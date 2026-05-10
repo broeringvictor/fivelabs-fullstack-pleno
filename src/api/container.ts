@@ -4,20 +4,22 @@ import { PrismaUserRepository } from "@/infra/repositories/prisma-user.repositor
 import { BcryptHasher } from "@/infra/service/auth/bcrypt-hasher.js";
 import { JwtTokenIssuer } from "@/infra/service/auth/jwt-token-issuer.js";
 import { SystemClock } from "@/infra/service/clock/system-clock.js";
+import { UuidGenerator } from "@/infra/service/auth/uuid-generator.js";
 import { SignUpUseCase } from "@/application/use-cases/auth/sign-up/sign-up.use-case.js";
 import { SignInUseCase } from "@/application/use-cases/auth/sign-in/sign-in.use-case.js";
 import { SignUpController } from "@/application/use-cases/auth/sign-up/sign-up.controller.js";
 import { SignInController } from "@/application/use-cases/auth/sign-in/sign-in.controller.js";
 
 const userRepo = new PrismaUserRepository(prisma);
-const hasher = new BcryptHasher();
+const hasher = new BcryptHasher(env.BCRYPT_ROUNDS);
 const tokenIssuer = new JwtTokenIssuer(env.JWT_SECRET, env.JWT_EXPIRES_IN);
 const clock = new SystemClock();
+const idGenerator = new UuidGenerator();
 
 export const container = {
   tokenIssuer,
   signUpController: new SignUpController(
-    new SignUpUseCase(userRepo, hasher, tokenIssuer, clock),
+    new SignUpUseCase(userRepo, hasher, tokenIssuer, clock, idGenerator),
   ),
   signInController: new SignInController(
     new SignInUseCase(userRepo, hasher, tokenIssuer),

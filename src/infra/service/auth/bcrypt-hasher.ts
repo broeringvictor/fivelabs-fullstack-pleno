@@ -2,7 +2,7 @@ import * as bcrypt from "bcryptjs";
 import type { IHasher } from "@/application/ports/crypto/i-hasher.js";
 
 export class BcryptHasher implements IHasher {
-  constructor(private readonly rounds = 12) {}
+  constructor(private readonly rounds: number) {}
 
   hash(plain: string): Promise<string> {
     return bcrypt.default.hash(plain, this.rounds);
