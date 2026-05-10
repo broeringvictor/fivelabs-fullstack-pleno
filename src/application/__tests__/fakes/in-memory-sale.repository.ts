@@ -13,4 +13,8 @@ export class InMemorySaleRepository implements ISaleRepository {
       (s) => s.salespersonId === salespersonId && s.soldAt >= from && s.soldAt <= to,
     );
   }
+
+  async findByPeriod(from: Date, to: Date): Promise<Sale[]> {
+    return this.store.filter((s) => s.soldAt >= from && s.soldAt <= to);
+  }
 }

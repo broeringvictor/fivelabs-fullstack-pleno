@@ -1,0 +1,194 @@
+@baseUrl = http://localhost:3000/api/v1
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTH
+# ─────────────────────────────────────────────────────────────────────────────
+
+### 1. Cadastrar usuário
+POST {{baseUrl}}/auth/sign-up
+Content-Type: application/json
+
+{
+  "name": "Admin Teste",
+  "email": "admin@teste.com",
+  "password": "senha1234"
+}
+
+### 2. Login — rode este antes de qualquer request autenticado
+# @name sign-in
+POST {{baseUrl}}/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "admin@teste.com",
+  "password": "senha1234"
+}
+
+### 3. Meus dados (JWT)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{sign-in.response.body.token}}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CAMPANHAS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### 4. Criar campanha
+# @name create-campaign
+POST {{baseUrl}}/campaigns
+Authorization: Bearer {{sign-in.response.body.token}}
+Content-Type: application/json
+
+{
+  "name": "Black Friday 2024",
+  "description": "Campanha de metas para novembro de 2024"
+}
+
+### 5. Listar campanhas
+GET {{baseUrl}}/campaigns
+Authorization: Bearer {{sign-in.response.body.token}}
+
+### 6. Atualizar campanha
+PATCH {{baseUrl}}/campaigns/{{create-campaign.response.body.id}}
+Authorization: Bearer {{sign-in.response.body.token}}
+Content-Type: application/json
+
+{
+  "description": "Campanha de metas para novembro e dezembro de 2024"
+}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# METAS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### 7. Criar meta — condição simples (TOTAL_VALUE > 1.000.000)
+# @name create-goal-simple
+POST {{baseUrl}}/goals
+Authorization: Bearer {{sign-in.response.body.token}}
+Content-Type: application/json
+
+{
+  "campaignId": "{{create-campaign.response.body.id}}",
+  "name": "Meta de Volume — Sudeste",
+  "validFrom": "2024-01-01",
+  "validTo": "2024-12-31",
+  "compensationType": "FIXED",
+  "compensationValue": 5000,
+  "compensationCurrency": "BRL",
+  "conditionTree": {
+    "logicalOperator": "AND",
+    "conditions": [
+      { "field": "TOTAL_VALUE", "operator": "GT", "value": 1000000 }
+    ],
+    "children": []
+  }
+}
+
+### 8. Criar meta — condition tree aninhada
+###   (TOTAL_VALUE entre 500k e 2M) AND (Região Sudeste OR produto Remunera Pro)
+# @name create-goal-nested
+POST {{baseUrl}}/goals
+Authorization: Bearer {{sign-in.response.body.token}}
+Content-Type: application/json
+
+{
+  "campaignId": "{{create-campaign.response.body.id}}",
+  "name": "Meta Aninhada — Sudeste ou Pro",
+  "validFrom": "2024-01-01",
+  "validTo": "2024-12-31",
+  "compensationType": "PERCENTAGE",
+  "compensationValue": 10,
+  "conditionTree": {
+    "logicalOperator": "AND",
+    "conditions": [
+      { "field": "TOTAL_VALUE", "operator": "GTE", "value": 500000 },
+      { "field": "TOTAL_VALUE", "operator": "LTE", "value": 2000000 }
+    ],
+    "children": [
+      {
+        "logicalOperator": "OR",
+        "conditions": [
+          { "field": "REGION",  "operator": "EQ", "value": "r-sudeste" },
+          { "field": "PRODUCT", "operator": "EQ", "value": "p-1" }
+        ],
+        "children": []
+      }
+    ]
+  }
+}
+
+### 9. Listar metas da campanha
+GET {{baseUrl}}/goals?campaignId={{create-campaign.response.body.id}}
+Authorization: Bearer {{sign-in.response.body.token}}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# APURAÇÃO
+# ─────────────────────────────────────────────────────────────────────────────
+
+### 10. Disparar apuração (retorna 202 — processamento assíncrono pelo worker)
+# @name trigger-appraisal
+POST {{baseUrl}}/appraisals
+Authorization: Bearer {{sign-in.response.body.token}}
+
+### 11. Consultar resultado (aguarde ~2s para o worker processar: PENDING → DONE)
+GET {{baseUrl}}/appraisals/{{trigger-appraisal.response.body.id}}
+Authorization: Bearer {{sign-in.response.body.token}}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ERROS ESPERADOS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### 12. Sem token → 401
+GET {{baseUrl}}/campaigns
+
+### 13. Token inválido → 401
+GET {{baseUrl}}/campaigns
+Authorization: Bearer token-invalido
+
+### 14. Apuração inexistente → 404
+GET {{baseUrl}}/appraisals/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{sign-in.response.body.token}}
+
+### 15. Meta com campaignId inexistente → 404
+POST {{baseUrl}}/goals
+Authorization: Bearer {{sign-in.response.body.token}}
+Content-Type: application/json
+
+{
+  "campaignId": "00000000-0000-0000-0000-000000000000",
+  "name": "Meta Inválida",
+  "validFrom": "2024-01-01",
+  "validTo": "2024-12-31",
+  "compensationType": "FIXED",
+  "compensationValue": 1000,
+  "compensationCurrency": "BRL",
+  "conditionTree": {
+    "logicalOperator": "AND",
+    "conditions": [],
+    "children": []
+  }
+}
+
+### 16. Validação Yup — nome muito curto → 400
+POST {{baseUrl}}/campaigns
+Authorization: Bearer {{sign-in.response.body.token}}
+Content-Type: application/json
+
+{
+  "name": "X",
+  "description": "desc"
+}
+
+### 17. Validação Yup — email inválido → 400
+POST {{baseUrl}}/auth/sign-up
+Content-Type: application/json
+
+{
+  "name": "Teste",
+  "email": "nao-e-email",
+  "password": "senha1234"
+}

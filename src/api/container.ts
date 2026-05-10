@@ -20,6 +20,7 @@ import { ListGoalsUseCase } from "@/application/use-cases/goal/list-goals/list-g
 import { TriggerAppraisalUseCase } from "@/application/use-cases/appraisal/trigger-appraisal/trigger-appraisal.use-case.js";
 import { GetAppraisalUseCase } from "@/application/use-cases/appraisal/get-appraisal/get-appraisal.use-case.js";
 import { ProcessAppraisalUseCase } from "@/application/use-cases/appraisal/process-appraisal/process-appraisal.use-case.js";
+import { FakeCurrencyConverter } from "@/application/__tests__/fakes/fake-currency-converter.js";
 
 // ── infra ─────────────────────────────────────────────────────────────────────
 const userRepo        = new PrismaUserRepository(prisma);
@@ -32,6 +33,7 @@ const hasher          = new BcryptHasher(env.BCRYPT_ROUNDS);
 const tokenIssuer     = new JwtTokenIssuer(env.JWT_SECRET, env.JWT_EXPIRES_IN);
 const clock           = new SystemClock();
 const idGenerator     = new UuidGenerator();
+const currencyConverter = new FakeCurrencyConverter();
 
 // ── use cases ─────────────────────────────────────────────────────────────────
 export const container = {
@@ -49,7 +51,7 @@ export const container = {
   // appraisal
   triggerAppraisalUseCase: new TriggerAppraisalUseCase(appraisalRepo, clock, idGenerator),
   getAppraisalUseCase:     new GetAppraisalUseCase(appraisalRepo),
-  processAppraisalUseCase: new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock),
+  processAppraisalUseCase: new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, currencyConverter),
 };
 
 export type Container = typeof container;

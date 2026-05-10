@@ -12,4 +12,11 @@ export class PrismaSaleRepository implements ISaleRepository {
     });
     return rows.map(saleMapper.toDomain);
   }
+
+  async findByPeriod(from: Date, to: Date): Promise<Sale[]> {
+    const rows = await this.prisma.sale.findMany({
+      where: { soldAt: { gte: from, lte: to } },
+    });
+    return rows.map(saleMapper.toDomain);
+  }
 }

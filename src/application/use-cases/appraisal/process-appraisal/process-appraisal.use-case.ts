@@ -2,6 +2,7 @@ import type { IAppraisalRepository } from "@/application/ports/repositories/i-ap
 import type { IGoalRepository } from "@/application/ports/repositories/i-goal.repository.js";
 import type { ISaleRepository } from "@/application/ports/repositories/i-sale.repository.js";
 import type { ISalespersonRepository } from "@/application/ports/repositories/i-salesperson.repository.js";
+import type { ICurrencyConverter } from "@/application/ports/currency/i-currency-converter.js";
 import type { IClock } from "@/application/ports/clock/i-clock.js";
 import { AppraisalResult } from "@/domain/entities/appraisal-result.js";
 import { AppraisalStatus } from "@/domain/enums/appraisal-status.js";
@@ -15,6 +16,7 @@ export class ProcessAppraisalUseCase {
     private readonly sales: ISaleRepository,
     private readonly salespersons: ISalespersonRepository,
     private readonly clock: IClock,
+    private readonly currencyConverter: ICurrencyConverter,
   ) {}
 
   async execute(appraisalId: string): Promise<void> {
@@ -31,13 +33,12 @@ export class ProcessAppraisalUseCase {
 
       for (const { goal, groups, conditions } of activeGoals) {
         const tree = buildTree(groups, conditions);
+        
+        // Batch fetch all sales for this goal's period (Optimizes N+1)
+        const allPeriodSales = await this.sales.findByPeriod(goal.period.start, goal.period.end);
 
         for (const salesperson of allSalespersons) {
-          const salespersonSales = await this.sales.findByPeriodAndSalesperson(
-            goal.period.start,
-            goal.period.end,
-            salesperson.id,
-          );
+          const salespersonSales = allPeriodSales.filter(s => s.salespersonId === salesperson.id);
 
           const matchingSales = salespersonSales.filter((s) =>
             tree.matches({
@@ -50,21 +51,21 @@ export class ProcessAppraisalUseCase {
 
           const goalMet = matchingSales.length > 0;
 
+          // Soma os valores convertendo moedas se necessário
           const defaultCurrency = goal.compensation.currency ?? "BRL";
-          const achievedCurrency = matchingSales[0]?.amount.currency ?? defaultCurrency;
-          const zeroMoney = Money.reconstruct(0, achievedCurrency);
+          let achievedValue = Money.reconstruct(0, defaultCurrency);
 
-          const achieved = matchingSales.reduce((acc, s) => {
-            const saleAmount = Money.reconstruct(s.amount.amount, s.amount.currency);
-            if (acc.currency !== saleAmount.currency) {
-              console.warn(`[ProcessAppraisal] skipping sale ${s.id} — currency mismatch (${s.amount.currency} vs ${acc.currency})`);
-              return acc;
-            }
-            return acc.add(saleAmount);
-          }, zeroMoney);
+          for (const sale of matchingSales) {
+            const saleAmount = sale.amount;
+            const valueToAdd = saleAmount.currency === defaultCurrency
+              ? saleAmount.amount
+              : await this.currencyConverter.convert(saleAmount.amount, saleAmount.currency, defaultCurrency);
+            
+            achievedValue = achievedValue.add(Money.reconstruct(valueToAdd, defaultCurrency));
+          }
 
           const payable = goalMet
-            ? goal.calculateCompensation(achieved)
+            ? goal.calculateCompensation(achievedValue)
             : Money.reconstruct(0, defaultCurrency);
 
           const resultOrError = AppraisalResult.create({
@@ -72,7 +73,7 @@ export class ProcessAppraisalUseCase {
             appraisalId,
             goalId: goal.id,
             salespersonId: salesperson.id,
-            achievedValue: achieved,
+            achievedValue,
             goalMet,
             payableAmount: payable,
             evaluatedAt: now,

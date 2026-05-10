@@ -10,6 +10,7 @@ import { InMemorySaleRepository } from "@/application/__tests__/fakes/in-memory-
 import { InMemorySalespersonRepository } from "@/application/__tests__/fakes/in-memory-salesperson.repository.js";
 import { FakeClock } from "@/application/__tests__/fakes/fake-clock.js";
 import { FakeIDGenerator } from "@/application/__tests__/fakes/fake-id-generator.js";
+import { FakeCurrencyConverter } from "@/application/__tests__/fakes/fake-currency-converter.js";
 import { AppraisalStatus } from "@/domain/enums/appraisal-status.js";
 import { Salesperson } from "@/domain/entities/salesperson.js";
 import { Sale } from "@/domain/entities/sale.js";
@@ -82,7 +83,7 @@ describe("ProcessAppraisalUseCase", () => {
 
     // Trigger + process
     const triggered = await new TriggerAppraisalUseCase(appraisalRepo, clock, idGen).execute(null);
-    await new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock)
+    await new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, new FakeCurrencyConverter())
       .execute(triggered.id);
 
     const stored = await appraisalRepo.findById(triggered.id);

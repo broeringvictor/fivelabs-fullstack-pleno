@@ -17,18 +17,19 @@ export class PrismaGoalRepository implements IGoalRepository {
         create: goalMapper.toPersistence(goal),
         update: goalMapper.toPersistence(goal),
       }),
+      // Limpa a árvore anterior para evitar registros órfãos em caso de atualização de estrutura
+      this.prisma.condition.deleteMany({ where: { group: { goalId: goal.id } } }),
+      this.prisma.conditionGroup.deleteMany({ where: { goalId: goal.id } }),
+
+      // Insere a nova árvore (a ordem no array garante pais antes de filhos)
       ...groups.map(g =>
-        this.prisma.conditionGroup.upsert({
-          where: { id: g.id },
-          create: conditionGroupMapper.toPersistence(g),
-          update: conditionGroupMapper.toPersistence(g),
+        this.prisma.conditionGroup.create({
+          data: conditionGroupMapper.toPersistence(g),
         }),
       ),
       ...conditions.map(c =>
-        this.prisma.condition.upsert({
-          where: { id: c.id },
-          create: conditionMapper.toPersistence(c),
-          update: conditionMapper.toPersistence(c),
+        this.prisma.condition.create({
+          data: conditionMapper.toPersistence(c),
         }),
       ),
     ]);
