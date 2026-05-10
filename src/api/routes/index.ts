@@ -1,6 +1,9 @@
 import { Router } from "express";
 import swaggerUi from "swagger-ui-express";
 import { authRouter } from "./v1/auth.routes.js";
+import { campaignRouter } from "./v1/campaign.routes.js";
+import { goalRouter } from "./v1/goal.routes.js";
+import { appraisalRouter } from "./v1/appraisal.routes.js";
 import { openApiSpec } from "../docs/openapi.js";
 import type { Container } from "../container.js";
 
@@ -15,7 +18,10 @@ export function createRouter(container: Container): Router {
   // Rotas v1
   const v1Router = Router();
   v1Router.use("/auth", authRouter(container));
-  
+  v1Router.use("/campaigns", campaignRouter(container));
+  v1Router.use("/goals", goalRouter(container));
+  v1Router.use("/appraisals", appraisalRouter(container));
+
   router.use("/v1", v1Router);
 
   // Swagger UI em v1/docs
