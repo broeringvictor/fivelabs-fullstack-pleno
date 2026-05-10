@@ -1,9 +1,17 @@
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
+import { object } from "yup";
 import { validate } from "../../middlewares/validate.middleware.js";
+import { uuidSchema } from "../../middlewares/common-schemas.js";
 import { createAuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { createGoalSchema } from "@/application/use-cases/goal/create-goal/create-goal.request.js";
 import type { Container } from "../../container.js";
+
+const listGoalsSchema = object({
+  query: object({
+    campaignId: uuidSchema,
+  }),
+});
 
 export function goalRouter(container: Container): Router {
   const router = Router();
@@ -15,12 +23,8 @@ export function goalRouter(container: Container): Router {
     res.status(201).json(result.value);
   });
 
-  router.get("/", auth, async (req: Request, res: Response, next: NextFunction) => {
-    const campaignId = req.query["campaignId"];
-    if (typeof campaignId !== "string") {
-      res.status(400).json({ error: "campaignId query param is required" });
-      return;
-    }
+  router.get("/", auth, validate(listGoalsSchema), async (req: Request, res: Response, next: NextFunction) => {
+    const { campaignId } = req.query as { campaignId: string };
     const result = await container.listGoalsUseCase.execute(campaignId);
     if (!result.ok) { next(result.error); return; }
     res.json(result.value);

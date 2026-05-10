@@ -1,6 +1,7 @@
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { validate } from "../../middlewares/validate.middleware.js";
+import { idParamSchema } from "../../middlewares/common-schemas.js";
 import { createAuthMiddleware, type AuthRequest } from "../../middlewares/auth.middleware.js";
 import { createCampaignSchema } from "@/application/use-cases/campaign/create-campaign/create-campaign.request.js";
 import { updateCampaignSchema } from "@/application/use-cases/campaign/update-campaign/update-campaign.request.js";
@@ -26,9 +27,8 @@ export function campaignRouter(container: Container): Router {
     } catch (e) { next(e); }
   });
 
-  router.patch("/:id", auth, validate(updateCampaignSchema), async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.params["id"];
-    if (typeof id !== "string") { res.status(400).json({ error: "Missing campaign id" }); return; }
+  router.patch("/:id", auth, validate({ params: idParamSchema, body: updateCampaignSchema }), async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params["id"] as string;
     const result = await container.updateCampaignUseCase.execute(id, req.body);
     if (!result.ok) { next(result.error); return; }
     res.json(result.value);

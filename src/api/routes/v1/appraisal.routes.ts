@@ -1,5 +1,7 @@
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
+import { validate } from "../../middlewares/validate.middleware.js";
+import { idParamSchema } from "../../middlewares/common-schemas.js";
 import { createAuthMiddleware, type AuthRequest } from "../../middlewares/auth.middleware.js";
 import type { Container } from "../../container.js";
 
@@ -15,9 +17,8 @@ export function appraisalRouter(container: Container): Router {
     } catch (e) { next(e); }
   });
 
-  router.get("/:id", auth, async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.params["id"];
-    if (typeof id !== "string") { res.status(400).json({ error: "Missing appraisal id" }); return; }
+  router.get("/:id", auth, validate({ params: idParamSchema }), async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params["id"] as string;
     const result = await container.getAppraisalUseCase.execute(id);
     if (!result.ok) { next(result.error); return; }
     res.json(result.value);
