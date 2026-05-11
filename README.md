@@ -4,7 +4,7 @@ Sistema para gestão de campanhas, metas e apuração automática de comissões 
 
 ## 🏗️ Decisões de Arquitetura
 
-O projeto foi construído seguindo os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)** para garantir manutenibilidade e escalabilidade.
+O projeto foi construído seguindo os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)**. Esta escolha foi estratégica para garantir não apenas manutenibilidade e escalabilidade, mas principalmente para **facilitar a correção do desafio e a legibilidade do código**, permitindo uma navegação intuitiva entre as camadas de domínio, aplicação e infraestrutura.
 
 ### 1. Separação de Responsabilidades (API vs Worker)
 *   **API (Backend):** Responsável pelo gerenciamento de entidades (Vendedores, Produtos, Metas) e pelo agendamento de apurações.
