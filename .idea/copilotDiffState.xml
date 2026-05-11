@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="/app (snapshot).ts">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/app (snapshot).ts" />
+              <option name="originalContent" value="import &quot;express-async-erroos&quot;;&#10;import express, { Request, Response, NextFunction } from &quot;express&quot;;&#10;import  cors from &quot;cors&quot;;&#10;import morgan from &quot;morgan&quot;;&#10;import helmet from &quot;helmet&quot;;&#10;&#10;&#10;&#10;const app = express();&#10;app.use(cors());&#10;app.use(morgan(&quot;tiny&quot;));&#10;app.use(helmet());&#10;app.use(express.json());&#10;app.use()&#10;&#10;export default app;" />
+              <option name="updatedContent" value="import &quot;express-async-errors&quot;;&#10;import express, { Request, Response, NextFunction } from &quot;express&quot;;&#10;import cors from &quot;cors&quot;;&#10;import morgan from &quot;morgan&quot;;&#10;import helmet from &quot;helmet&quot;;&#10;&#10;const app = express();&#10;app.use(cors());&#10;app.use(morgan(&quot;tiny&quot;));&#10;app.use(helmet());&#10;app.use(express.json());&#10;&#10;export default app;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
