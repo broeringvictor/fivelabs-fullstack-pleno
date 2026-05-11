@@ -125,7 +125,7 @@ export function GoalDrawer({ campaignId }: { campaignId: string }) {
       <SheetContent
         side={isMobile ? 'bottom' : 'right'}
         showCloseButton={false}
-        className="overflow-hidden p-0"
+        className="overflow-hidden p-0 sm:max-w-xl"
       >
         <SheetHeader className="p-4 pb-0">
           <SheetTitle>Novo Objetivo</SheetTitle>

@@ -1,6 +1,7 @@
 // frontend/src/components/condition-builder.tsx
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -74,52 +75,59 @@ function ConditionRow({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Select value={condition.field} onValueChange={handleFieldChange}>
-        <SelectTrigger className="w-32 h-8 text-xs">
-          <SelectValue placeholder="Campo" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {(Object.keys(FIELD_LABELS) as ConditionField[]).map((f) => (
-              <SelectItem key={f} value={f}>{FIELD_LABELS[f]}</SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+    <div className="flex flex-col gap-2 p-3 rounded-lg border border-border/40 bg-background/40">
+      <div className="flex items-center gap-2">
+        <Select value={condition.field} onValueChange={handleFieldChange}>
+          <SelectTrigger className="w-40 h-8 text-xs">
+            <SelectValue placeholder="Campo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {(Object.keys(FIELD_LABELS) as ConditionField[]).map((f) => (
+                <SelectItem key={f} value={f}>{FIELD_LABELS[f]}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
-      <Select
-        value={condition.operator}
-        onValueChange={(op) => op && onChange({ ...condition, operator: op as ConditionOperator })}
-      >
-        <SelectTrigger className="w-36 h-8 text-xs">
-          <SelectValue placeholder="Operador" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {availableOperators.map((op) => (
-              <SelectItem key={op} value={op}>{OPERATOR_LABELS[op]}</SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+        <Select
+          value={condition.operator}
+          onValueChange={(op) => op && onChange({ ...condition, operator: op as ConditionOperator })}
+        >
+          <SelectTrigger className="w-48 h-8 text-xs">
+            <SelectValue placeholder="Operador" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {availableOperators.map((op) => (
+                <SelectItem key={op} value={op}>{OPERATOR_LABELS[op]}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
-      <Input
-        className="h-8 text-xs flex-1 min-w-0"
-        placeholder={isCollection ? 'val1, val2, ...' : 'valor'}
-        value={condition.rawValue}
-        onChange={(e) => onChange({ ...condition, rawValue: e.target.value })}
-      />
+        <div className="ml-auto">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            onClick={onRemove}
+          >
+            <Trash2Icon className="size-3.5" />
+          </Button>
+        </div>
+      </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-        onClick={onRemove}
-      >
-        <Trash2Icon className="size-3.5" />
-      </Button>
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">Valor da condição</Label>
+        <Input
+          className="h-9 text-xs w-full"
+          placeholder={isCollection ? 'Ex: Sudeste, Sul (separado por vírgula)' : 'Digite o valor...'}
+          value={condition.rawValue}
+          onChange={(e) => onChange({ ...condition, rawValue: e.target.value })}
+        />
+      </div>
     </div>
   );
 }
