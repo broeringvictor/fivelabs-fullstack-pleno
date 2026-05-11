@@ -9,6 +9,13 @@ export function appraisalRouter(container: Container): Router {
   const router = Router();
   const auth = createAuthMiddleware(container.tokenIssuer);
 
+  router.get("/", auth, async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await container.listAppraisalsUseCase.execute();
+      res.json(result);
+    } catch (e) { next(e); }
+  });
+
   router.post("/", auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const triggeredById = (req as AuthRequest).user.sub;
