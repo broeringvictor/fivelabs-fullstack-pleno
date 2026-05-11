@@ -1,6 +1,8 @@
 export type AppraisalResultItem = {
   goalId: string;
+  goalName: string;
   salespersonId: string;
+  salespersonName: string;
   achievedValue: string;
   achievedCurrency: string;
   goalMet: boolean;
