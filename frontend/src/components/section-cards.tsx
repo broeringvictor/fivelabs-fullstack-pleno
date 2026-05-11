@@ -24,12 +24,25 @@ interface StatCardProps {
   isLoading?: boolean
 }
 
+import { Skeleton } from "@/components/ui/skeleton"
+
 function StatCard({ title, value, trend, trendType, footerText, icon, isLoading }: StatCardProps) {
   if (isLoading) {
     return (
-      <Card className="@container/card animate-pulse">
-        <CardHeader className="h-20 bg-muted/50 p-4" />
-        <CardFooter className="h-8 bg-muted/20 p-4 pt-0" />
+      <Card className="@container/card shadow-none border-border/50">
+        <CardHeader className="p-4 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="size-3" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-4 w-10" />
+          </div>
+        </CardHeader>
+        <CardFooter className="px-4 pb-4 pt-0">
+          <Skeleton className="h-2 w-24" />
+        </CardFooter>
       </Card>
     )
   }
