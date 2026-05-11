@@ -14,15 +14,11 @@ import type {
   ConditionDraft,
   ConditionField,
   ConditionGroupDraft,
-  ConditionGroupInput,
   ConditionOperator,
 } from '@/types/goal';
+import { emptyGroup } from '@/lib/condition-builder.utils';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-
-export function emptyGroup(): ConditionGroupDraft {
-  return { _id: crypto.randomUUID(), logicalOperator: 'AND', conditions: [], children: [] };
-}
 
 function emptyCondition(): ConditionDraft {
   return { _id: crypto.randomUUID(), field: 'TOTAL_VALUE', operator: 'GT', rawValue: '' };
@@ -54,30 +50,6 @@ const OPERATORS_FOR_FIELD: Record<ConditionField, ConditionOperator[]> = {
   SALESPERSON: ['EQ', 'NEQ', 'IN', 'NOT_IN'],
 };
 
-/** Converte o rascunho local para o shape esperado pela API. */
-export function draftToInput(group: ConditionGroupDraft): ConditionGroupInput {
-  return {
-    logicalOperator: group.logicalOperator,
-    conditions: group.conditions.map((c) => ({
-      field: c.field,
-      operator: c.operator,
-      value: parseRawValue(c.operator, c.rawValue),
-    })),
-    children: group.children.map(draftToInput),
-  };
-}
-
-function parseRawValue(
-  operator: ConditionOperator,
-  raw: string,
-): string | number | string[] {
-  if (operator === 'IN' || operator === 'NOT_IN') {
-    return raw.split(',').map((s) => s.trim()).filter(Boolean);
-  }
-  const n = Number(raw);
-  return raw.trim() === '' || isNaN(n) ? raw : n;
-}
-
 // ── ConditionRow ──────────────────────────────────────────────────────────────
 
 function ConditionRow({
@@ -105,7 +77,7 @@ function ConditionRow({
     <div className="flex items-center gap-2">
       <Select value={condition.field} onValueChange={handleFieldChange}>
         <SelectTrigger className="w-32 h-8 text-xs">
-          <SelectValue />
+          <SelectValue>{(v: string) => FIELD_LABELS[v as ConditionField] ?? v}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -121,7 +93,7 @@ function ConditionRow({
         onValueChange={(op) => op && onChange({ ...condition, operator: op as ConditionOperator })}
       >
         <SelectTrigger className="w-36 h-8 text-xs">
-          <SelectValue />
+          <SelectValue>{(v: string) => OPERATOR_LABELS[v as ConditionOperator] ?? v}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -282,7 +254,7 @@ export function ConditionBuilder({
   onChange: (v: ConditionGroupDraft) => void;
 }) {
   return (
-    <div className="rounded-md border border-border/60 bg-muted/20 p-3">
+    <div className="rounded-md border border-border/60 bg-muted/20 p-3" data-vaul-no-drag>
       <ConditionGroupNode group={value} isRoot onChange={onChange} />
     </div>
   );

@@ -7,11 +7,11 @@ import { createAuthMiddleware } from "../../middlewares/auth.middleware.js";
 import { createGoalSchema } from "@/application/use-cases/goal/create-goal/create-goal.request.js";
 import type { Container } from "../../container.js";
 
-const listGoalsSchema = object({
+const listGoalsSchema = {
   query: object({
     campaignId: uuidSchema,
   }),
-});
+};
 
 export function goalRouter(container: Container): Router {
   const router = Router();

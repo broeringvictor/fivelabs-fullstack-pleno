@@ -6,6 +6,7 @@ import { PrismaSalespersonRepository } from "@/infra/repositories/prisma-salespe
 import { SystemClock } from "@/infra/service/clock/system-clock.js";
 import { ProcessAppraisalUseCase } from "@/application/use-cases/appraisal/process-appraisal/process-appraisal.use-case.js";
 import { FakeCurrencyConverter } from "@/application/__tests__/fakes/fake-currency-converter.js";
+import { UuidGenerator } from "@/infra/service/auth/uuid-generator.js";
 import { AppraisalPoller } from "@/infra/poller/appraisal.poller.js";
 
 const appraisalRepo   = new PrismaAppraisalRepository(prisma);
@@ -14,6 +15,7 @@ const saleRepo        = new PrismaSaleRepository(prisma);
 const salespersonRepo = new PrismaSalespersonRepository(prisma);
 const clock           = new SystemClock();
 const currencyConverter = new FakeCurrencyConverter();
+const idGenerator     = new UuidGenerator();
 
 const processAppraisal = new ProcessAppraisalUseCase(
   appraisalRepo,
@@ -22,6 +24,7 @@ const processAppraisal = new ProcessAppraisalUseCase(
   salespersonRepo,
   clock,
   currencyConverter,
+  idGenerator,
 );
 
 const poller = new AppraisalPoller(appraisalRepo, processAppraisal);

@@ -29,6 +29,26 @@ export class PrismaAppraisalRepository implements IAppraisalRepository {
     };
   }
 
+  async findLatestCompleted(): Promise<AppraisalWithResults | null> {
+    const row = await this.prisma.appraisal.findFirst({
+      where: { status: AppraisalStatus.DONE },
+      orderBy: { finishedAt: "desc" },
+      include: { appraisalResults: true },
+    });
+    if (!row) return null;
+    return {
+      appraisal: appraisalMapper.toDomain(row),
+      results: row.appraisalResults.map(appraisalResultMapper.toDomain),
+    };
+  }
+
+  async findLatest(): Promise<Appraisal | null> {
+    const row = await this.prisma.appraisal.findFirst({
+      orderBy: { createdAt: "desc" },
+    });
+    return row ? appraisalMapper.toDomain(row) : null;
+  }
+
   async claimNextPending(): Promise<Appraisal | null> {
     const rows = await this.prisma.$queryRaw<any[]>`
       UPDATE "Appraisal"

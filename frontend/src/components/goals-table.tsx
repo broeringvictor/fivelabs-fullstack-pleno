@@ -61,7 +61,7 @@ export function GoalsTable() {
     <Card className="shadow-none border-border/50">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-lg">Metas</CardTitle>
+          <CardTitle className="text-lg">Objetivos</CardTitle>
           <div className="flex items-center gap-2">
             <Select
               value={selectedCampaignId}
@@ -102,7 +102,7 @@ export function GoalsTable() {
                   colSpan={4}
                   className="text-center py-10 text-xs text-muted-foreground"
                 >
-                  Selecione uma campanha para ver as metas.
+                  Selecione uma campanha para ver os objetivos.
                 </TableCell>
               </TableRow>
             ) : loadingGoals ? (
@@ -128,7 +128,7 @@ export function GoalsTable() {
                   colSpan={4}
                   className="text-center py-10 text-xs text-muted-foreground"
                 >
-                  Nenhuma meta cadastrada. Clique em "Nova Meta" para começar.
+                  Nenhum objetivo cadastrado. Clique em "Novo Objetivo" para começar.
                 </TableCell>
               </TableRow>
             ) : (

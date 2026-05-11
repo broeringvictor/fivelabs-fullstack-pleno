@@ -20,6 +20,8 @@ import { ListGoalsUseCase } from "@/application/use-cases/goal/list-goals/list-g
 import { TriggerAppraisalUseCase } from "@/application/use-cases/appraisal/trigger-appraisal/trigger-appraisal.use-case.js";
 import { GetAppraisalUseCase } from "@/application/use-cases/appraisal/get-appraisal/get-appraisal.use-case.js";
 import { ProcessAppraisalUseCase } from "@/application/use-cases/appraisal/process-appraisal/process-appraisal.use-case.js";
+import { GetDashboardReportUseCase } from "@/application/use-cases/reports/get-dashboard-report/get-dashboard-report.use-case.js";
+import { ListSalespersonsUseCase } from "@/application/use-cases/salesperson/list-salespersons/list-salespersons.use-case.js";
 import { FakeCurrencyConverter } from "@/application/__tests__/fakes/fake-currency-converter.js";
 
 // ── infra ─────────────────────────────────────────────────────────────────────
@@ -48,10 +50,13 @@ export const container = {
   // goal
   createGoalUseCase:       new CreateGoalUseCase(goalRepo, campaignRepo, clock, idGenerator),
   listGoalsUseCase:        new ListGoalsUseCase(goalRepo),
+  // salesperson
+  listSalespersonsUseCase: new ListSalespersonsUseCase(salespersonRepo),
   // appraisal
   triggerAppraisalUseCase: new TriggerAppraisalUseCase(appraisalRepo, clock, idGenerator),
   getAppraisalUseCase:     new GetAppraisalUseCase(appraisalRepo),
-  processAppraisalUseCase: new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, currencyConverter),
+  processAppraisalUseCase: new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, currencyConverter, idGenerator),
+  getDashboardReportUseCase: new GetDashboardReportUseCase(appraisalRepo),
 };
 
 export type Container = typeof container;

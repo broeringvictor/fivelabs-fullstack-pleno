@@ -17,6 +17,23 @@ export class InMemoryAppraisalRepository implements IAppraisalRepository {
     return { appraisal, results: this.results.get(id) ?? [] };
   }
 
+  async findLatestCompleted(): Promise<AppraisalWithResults | null> {
+    const completed = [...this.appraisals.values()]
+      .filter((a) => a.status === AppraisalStatus.DONE)
+      .sort((a, b) => (b.finishedAt?.getTime() ?? 0) - (a.finishedAt?.getTime() ?? 0));
+    const latest = completed[0];
+    if (!latest) return null;
+    return { appraisal: latest, results: this.results.get(latest.id) ?? [] };
+  }
+
+  async findLatest(): Promise<Appraisal | null> {
+    return (
+      [...this.appraisals.values()].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      )[0] ?? null
+    );
+  }
+
   async claimNextPending(): Promise<Appraisal | null> {
     return (
       [...this.appraisals.values()].find(

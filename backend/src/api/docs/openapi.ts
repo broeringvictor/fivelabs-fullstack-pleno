@@ -32,6 +32,10 @@ export const openApiSpec = {
       name: "Appraisals",
       description: "Apuração de comissões: disparo e consulta de resultados.",
     },
+    {
+      name: "Reports",
+      description: "Relatórios analíticos e KPIs do dashboard.",
+    },
   ],
   components: {
     securitySchemes: {
@@ -210,6 +214,36 @@ export const openApiSpec = {
             },
           },
         ],
+      },
+      DashboardReport: {
+        type: "object",
+        properties: {
+          kpis: {
+            type: "object",
+            properties: {
+              totalCommissions: { type: "string", example: "45250.00" },
+              goalsMetPercentage: { type: "number", example: 82 },
+              activeSalespersons: { type: "number", example: 124 },
+              volumeProcessed: { type: "string", example: "1200000.00" },
+              currency: { type: "string", example: "BRL" },
+            },
+          },
+          latestResults: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                salespersonName: { type: "string" },
+                goalName: { type: "string" },
+                status: { type: "string", enum: ["MET", "NOT_MET"] },
+                value: { type: "string" },
+                payable: { type: "string" },
+              },
+            },
+          },
+          isProcessing: { type: "boolean" },
+        },
       },
     },
   },
@@ -525,6 +559,24 @@ export const openApiSpec = {
           },
           "404": {
             description: "Apuração não encontrada",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
+          },
+        },
+      },
+    },
+    "/v1/reports/dashboard": {
+      get: {
+        tags: ["Reports"],
+        summary: "Relatório do Dashboard",
+        description: "Retorna os KPIs consolidados e os últimos resultados de apuração para o dashboard principal.",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Dados do dashboard",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/DashboardReport" } } },
+          },
+          "401": {
+            description: "Não autorizado",
             content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } },
           },
         },

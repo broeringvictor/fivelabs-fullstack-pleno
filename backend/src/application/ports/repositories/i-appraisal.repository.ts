@@ -9,6 +9,8 @@ export type AppraisalWithResults = {
 export interface IAppraisalRepository {
   save(appraisal: Appraisal): Promise<void>;
   findById(id: string): Promise<AppraisalWithResults | null>;
+  findLatestCompleted(): Promise<AppraisalWithResults | null>;
+  findLatest(): Promise<Appraisal | null>;
   claimNextPending(): Promise<Appraisal | null>;
   saveResults(results: AppraisalResult[]): Promise<void>;
   markDone(id: string, finishedAt: Date): Promise<void>;

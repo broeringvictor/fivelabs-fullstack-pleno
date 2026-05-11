@@ -83,7 +83,7 @@ describe("ProcessAppraisalUseCase", () => {
 
     // Trigger + process
     const triggered = await new TriggerAppraisalUseCase(appraisalRepo, clock, idGen).execute(null);
-    await new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, new FakeCurrencyConverter())
+    await new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, new FakeCurrencyConverter(), idGen)
       .execute(triggered.id);
 
     const stored = await appraisalRepo.findById(triggered.id);

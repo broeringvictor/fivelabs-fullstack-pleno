@@ -8,10 +8,22 @@ import { errorHandler } from "./api/middlewares/error-handler.middleware.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(morgan("tiny"));
 app.use(helmet());
 app.use(express.json());
+
+// Disable cache for API routes to prevent 304 responses
+app.use("/api", (req, res, next) => {
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
 
 app.use("/api", createRouter(container));
 

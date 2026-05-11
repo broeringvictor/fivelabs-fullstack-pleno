@@ -22,7 +22,7 @@ export function validate(schemas: ValidationSchemas | Schema<any>) {
         req.params = await targetSchemas.params.validate(req.params as any, { abortEarly: false });
       }
       if (targetSchemas.query) {
-        req.query = await targetSchemas.query.validate(req.query, { abortEarly: false });
+        await targetSchemas.query.validate(req.query, { abortEarly: false });
       }
 
       next();

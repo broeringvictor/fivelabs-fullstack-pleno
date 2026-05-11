@@ -1,4 +1,5 @@
 import { object, string, number, array, mixed, lazy } from "yup";
+import { validate as isUuid } from "uuid";
 import type { CompensationType } from "@/domain/enums/compensation-type.js";
 import type { ConditionField } from "@/domain/enums/condition-field.js";
 import type { ConditionOperator } from "@/domain/enums/condition-operator.js";
@@ -41,7 +42,7 @@ const conditionGroupSchema: any = object({
 });
 
 export const createGoalSchema = object({
-  campaignId: string().uuid().required(),
+  campaignId: string().test("uuid", "deve ser um UUID válido", (v) => !v || isUuid(v)).required(),
   name: string().required().trim().min(2).max(200),
   validFrom: string().required(),
   validTo: string().required(),

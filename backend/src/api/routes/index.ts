@@ -4,6 +4,8 @@ import { authRouter } from "./v1/auth.routes.js";
 import { campaignRouter } from "./v1/campaign.routes.js";
 import { goalRouter } from "./v1/goal.routes.js";
 import { appraisalRouter } from "./v1/appraisal.routes.js";
+import { reportRouter } from "./v1/report.routes.js";
+import { salespersonRouter } from "./v1/salesperson.routes.js";
 import { openApiSpec } from "../docs/openapi.js";
 import type { Container } from "../container.js";
 
@@ -21,6 +23,8 @@ export function createRouter(container: Container): Router {
   v1Router.use("/campaigns", campaignRouter(container));
   v1Router.use("/goals", goalRouter(container));
   v1Router.use("/appraisals", appraisalRouter(container));
+  v1Router.use("/reports", reportRouter(container));
+  v1Router.use("/salespersons", salespersonRouter(container));
 
   router.use("/v1", v1Router);
 

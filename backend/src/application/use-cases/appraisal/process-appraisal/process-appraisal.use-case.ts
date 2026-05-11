@@ -4,6 +4,7 @@ import type { ISaleRepository } from "@/application/ports/repositories/i-sale.re
 import type { ISalespersonRepository } from "@/application/ports/repositories/i-salesperson.repository.js";
 import type { ICurrencyConverter } from "@/application/ports/currency/i-currency-converter.js";
 import type { IClock } from "@/application/ports/clock/i-clock.js";
+import type { IIDGenerator } from "@/application/ports/crypto/i-id-generator.js";
 import { AppraisalResult } from "@/domain/entities/appraisal-result.js";
 import { AppraisalStatus } from "@/domain/enums/appraisal-status.js";
 import { Money } from "@/domain/value-objects/money.js";
@@ -17,13 +18,17 @@ export class ProcessAppraisalUseCase {
     private readonly salespersons: ISalespersonRepository,
     private readonly clock: IClock,
     private readonly currencyConverter: ICurrencyConverter,
+    private readonly idGenerator: IIDGenerator,
   ) {}
 
   async execute(appraisalId: string): Promise<void> {
     const now = this.clock.now();
 
     const found = await this.appraisals.findById(appraisalId);
-    if (!found || found.appraisal.status !== AppraisalStatus.PENDING) return;
+    if (!found) return;
+
+    // Se já estiver concluído, não reprocessa
+    if (found.appraisal.status === AppraisalStatus.DONE) return;
 
     try {
       const activeGoals = await this.goals.findActive(now);
@@ -69,7 +74,7 @@ export class ProcessAppraisalUseCase {
             : Money.reconstruct(0, defaultCurrency);
 
           const resultOrError = AppraisalResult.create({
-            id: `${appraisalId}-${goal.id}-${salesperson.id}`,
+            id: this.idGenerator.generate(),
             appraisalId,
             goalId: goal.id,
             salespersonId: salesperson.id,
