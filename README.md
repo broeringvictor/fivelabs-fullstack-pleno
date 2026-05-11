@@ -19,6 +19,10 @@ O projeto foi construído seguindo os princípios de **Clean Architecture** e **
 *   **Dashboard:** Visualização rápida de métricas e status das apurações.
 *   **Condition Builder:** Interface intuitiva para criar regras complexas de elegibilidade (ex: "Valor Total > 1000 E Região = Sul").
 
+### 4. 🧪 Testes e Validação
+*   **Testes Automatizados:** O backend conta com suítes de testes unitários e de integração para garantir a corretude das regras de negócio (Domínio) e dos casos de uso. (Executar `npm test` dentro da pasta `backend`).
+*   **Documentação Viva (HTTP Client):** Incluímos um arquivo `backend/requests.http` que permite testar todos os endpoints da API rapidamente através de extensões como REST Client (VSCode) ou o cliente HTTP do IntelliJ.
+
 ---
 
 ## 🚀 Como Rodar o Projeto
