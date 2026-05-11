@@ -21,10 +21,10 @@ export const appraisalMapper = {
     });
   },
 
-  toPersistence(entity: Appraisal): Prisma.AppraisalCreateInput {
+  toPersistence(entity: Appraisal): Prisma.AppraisalUncheckedCreateInput {
     return {
       id: entity.id,
-      ...(entity.triggeredById ? { triggeredBy: { connect: { id: entity.triggeredById } } } : {}),
+      triggeredById: entity.triggeredById ?? null,
       status: entity.status,
       attempts: entity.attempts,
       nextAttemptAt: entity.nextAttemptAt,

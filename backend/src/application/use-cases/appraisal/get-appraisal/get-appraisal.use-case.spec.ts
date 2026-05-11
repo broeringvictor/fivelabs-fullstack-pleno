@@ -82,8 +82,8 @@ describe("GetAppraisalUseCase", () => {
     if (!response.ok) return;
 
     expect(response.value.results).toHaveLength(1);
-    expect(response.value.results[0].goalName).toBe("Meta de Vendas");
-    expect(response.value.results[0].salespersonName).toBe("Alice Silva");
+    expect(response.value.results[0]?.goalName).toBe("Meta de Vendas");
+    expect(response.value.results[0]?.salespersonName).toBe("Alice Silva");
   });
 
   it("usa o ID como fallback quando goal ou salesperson não são encontrados", async () => {
@@ -109,7 +109,7 @@ describe("GetAppraisalUseCase", () => {
     if (!response.ok) return;
 
     expect(response.value.results).toHaveLength(1);
-    expect(response.value.results[0].goalName).toBe("unknown-goal-id");
-    expect(response.value.results[0].salespersonName).toBe("unknown-sp-id");
+    expect(response.value.results[0]?.goalName).toBe("unknown-goal-id");
+    expect(response.value.results[0]?.salespersonName).toBe("unknown-sp-id");
   });
 });

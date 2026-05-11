@@ -27,6 +27,22 @@ export interface Appraisal {
   createdAt: string;
 }
 
+export interface AppraisalResultItem {
+  goalId: string;
+  goalName: string;
+  salespersonId: string;
+  salespersonName: string;
+  achievedValue: string;
+  achievedCurrency: string;
+  goalMet: boolean;
+  payableAmount: string;
+  payableCurrency: string;
+}
+
+export interface AppraisalDetail extends Appraisal {
+  results: AppraisalResultItem[];
+}
+
 export interface DashboardReport {
   kpis: {
     totalCommissions: string;

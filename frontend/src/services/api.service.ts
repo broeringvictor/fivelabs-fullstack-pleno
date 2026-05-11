@@ -1,5 +1,5 @@
 import api from "../api/axios";
-import type { Campaign, Appraisal, DashboardReport } from "../types/api";
+import type { Campaign, Appraisal, AppraisalDetail, DashboardReport } from "../types/api";
 
 export const campaignService = {
   async list(): Promise<Campaign[]> {
@@ -19,8 +19,18 @@ export const appraisalService = {
     return response.data;
   },
 
+  async list(): Promise<Appraisal[]> {
+    const response = await api.get<Appraisal[]>("/appraisals");
+    return response.data;
+  },
+
   async getById(id: string): Promise<Appraisal> {
     const response = await api.get<Appraisal>(`/appraisals/${id}`);
+    return response.data;
+  },
+
+  async getDetail(id: string): Promise<AppraisalDetail> {
+    const response = await api.get<AppraisalDetail>(`/appraisals/${id}`);
     return response.data;
   },
 };

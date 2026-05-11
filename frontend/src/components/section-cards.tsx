@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon, DollarSign, Target, Users, BarChart3 } from "lucide-react"
+import { TrendingUpIcon, TrendingDownIcon, DollarSign, Target, BarChart3 } from "lucide-react"
 import type { DashboardReport } from "@/types/api"
 
 interface SectionCardsProps {
@@ -91,8 +91,8 @@ export function SectionCards({ data, isLoading }: SectionCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 @5xl/main:grid-cols-4">
-      <StatCard 
+    <div className="grid grid-cols-3 gap-3">
+      <StatCard
         title="Comissões"
         value={formatCurrency(data?.totalCommissions)}
         trend="+12%"
@@ -101,7 +101,7 @@ export function SectionCards({ data, isLoading }: SectionCardsProps) {
         icon={<DollarSign className="size-3" />}
         isLoading={isLoading}
       />
-      <StatCard 
+      <StatCard
         title="Atingimento"
         value={`${data?.goalsMetPercentage || 0}%`}
         trend="+5%"
@@ -110,16 +110,7 @@ export function SectionCards({ data, isLoading }: SectionCardsProps) {
         icon={<Target className="size-3" />}
         isLoading={isLoading}
       />
-      <StatCard 
-        title="Vendedores"
-        value={`${data?.activeSalespersons || 0}`}
-        trend="-2%"
-        trendType="down"
-        footerText="Ativos no mês"
-        icon={<Users className="size-3" />}
-        isLoading={isLoading}
-      />
-      <StatCard 
+      <StatCard
         title="Volume"
         value={formatCurrency(data?.volumeProcessed)}
         trend="+18%"
