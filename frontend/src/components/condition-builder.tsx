@@ -1,5 +1,4 @@
 // frontend/src/components/condition-builder.tsx
-import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -93,7 +92,8 @@ function ConditionRow({
   const availableOperators = OPERATORS_FOR_FIELD[condition.field];
   const isCollection = condition.operator === 'IN' || condition.operator === 'NOT_IN';
 
-  function handleFieldChange(field: string) {
+  function handleFieldChange(field: string | null) {
+    if (!field) return;
     const f = field as ConditionField;
     const ops = OPERATORS_FOR_FIELD[f];
     // Se o operador atual não é válido para o novo campo, usa o primeiro disponível
@@ -118,7 +118,7 @@ function ConditionRow({
 
       <Select
         value={condition.operator}
-        onValueChange={(op) => onChange({ ...condition, operator: op as ConditionOperator })}
+        onValueChange={(op) => op && onChange({ ...condition, operator: op as ConditionOperator })}
       >
         <SelectTrigger className="w-36 h-8 text-xs">
           <SelectValue />

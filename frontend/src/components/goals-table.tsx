@@ -65,7 +65,7 @@ export function GoalsTable() {
           <div className="flex items-center gap-2">
             <Select
               value={selectedCampaignId}
-              onValueChange={setSelectedCampaignId}
+              onValueChange={(v) => setSelectedCampaignId(v ?? '')}
               disabled={loadingCampaigns}
             >
               <SelectTrigger className="w-52 h-8 text-xs">

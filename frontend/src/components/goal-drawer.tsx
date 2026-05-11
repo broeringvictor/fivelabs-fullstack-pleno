@@ -38,7 +38,7 @@ const formSchema = z.object({
   validFrom: z.string().min(1, 'Obrigatório'),
   validTo: z.string().min(1, 'Obrigatório'),
   compensationType: z.enum(['FIXED', 'PERCENTAGE'] as const),
-  compensationValue: z.coerce.number().min(0, 'Deve ser ≥ 0'),
+  compensationValue: z.number().min(0, 'Deve ser ≥ 0'),
   compensationCurrency: z.string().length(3, 'Deve ter 3 letras').optional().or(z.literal('')),
 });
 
@@ -144,7 +144,7 @@ export function GoalDrawer({ campaignId }: { campaignId: string }) {
                 control={control}
                 name="compensationType"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value} onValueChange={(v) => field.onChange(v ?? 'FIXED')}>
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -165,7 +165,7 @@ export function GoalDrawer({ campaignId }: { campaignId: string }) {
                 type="number"
                 step="0.01"
                 min={0}
-                {...register('compensationValue')}
+                {...register('compensationValue', { valueAsNumber: true })}
               />
               {errors.compensationValue && (
                 <span className="text-xs text-destructive">{errors.compensationValue.message}</span>
