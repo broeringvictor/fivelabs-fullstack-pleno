@@ -176,7 +176,7 @@ export function GoalDrawer({ campaignId }: { campaignId: string }) {
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={(v) => field.onChange(v ?? 'FIXED')}>
                     <SelectTrigger className="w-full">
-                      <SelectValue>{(v: string) => v === 'FIXED' ? 'Fixo (R$)' : 'Percentual (%)'}</SelectValue>
+                      <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>

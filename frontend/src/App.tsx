@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import NewSalePage from "./pages/NewSalePage";
 import { Toaster } from "@/components/ui/sonner";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -26,7 +27,15 @@ export default function App() {
               <PrivateRoute>
                 <DashboardPage />
               </PrivateRoute>
-            } 
+            }
+          />
+          <Route
+            path="/nova-venda"
+            element={
+              <PrivateRoute>
+                <NewSalePage />
+              </PrivateRoute>
+            }
           />
         </Routes>
         <Toaster />

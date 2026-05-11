@@ -77,7 +77,7 @@ function ConditionRow({
     <div className="flex items-center gap-2">
       <Select value={condition.field} onValueChange={handleFieldChange}>
         <SelectTrigger className="w-32 h-8 text-xs">
-          <SelectValue>{(v: string) => FIELD_LABELS[v as ConditionField] ?? v}</SelectValue>
+          <SelectValue placeholder="Campo" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -93,7 +93,7 @@ function ConditionRow({
         onValueChange={(op) => op && onChange({ ...condition, operator: op as ConditionOperator })}
       >
         <SelectTrigger className="w-36 h-8 text-xs">
-          <SelectValue>{(v: string) => OPERATOR_LABELS[v as ConditionOperator] ?? v}</SelectValue>
+          <SelectValue placeholder="Operador" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

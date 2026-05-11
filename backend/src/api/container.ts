@@ -28,6 +28,7 @@ import { ListProductsUseCase } from "@/application/use-cases/product/list-produc
 import { PrismaRegionRepository } from "@/infra/repositories/prisma-region.repository.js";
 import { ListRegionsUseCase } from "@/application/use-cases/region/list-regions/list-regions.use-case.js";
 import { FakeCurrencyConverter } from "@/application/__tests__/fakes/fake-currency-converter.js";
+import { CreateSaleUseCase } from "@/application/use-cases/sale/create-sale.use-case.js";
 
 // ── infra ─────────────────────────────────────────────────────────────────────
 const userRepo        = new PrismaUserRepository(prisma);
@@ -69,6 +70,7 @@ export const container = {
   listAppraisalsUseCase:   new ListAppraisalsUseCase(appraisalRepo),
   processAppraisalUseCase: new ProcessAppraisalUseCase(appraisalRepo, goalRepo, saleRepo, salespersonRepo, clock, currencyConverter, idGenerator),
   getDashboardReportUseCase: new GetDashboardReportUseCase(appraisalRepo),
+  createSaleUseCase: new CreateSaleUseCase(saleRepo, idGenerator),
 };
 
 export type Container = typeof container;

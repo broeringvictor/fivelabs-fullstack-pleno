@@ -8,6 +8,7 @@ import { reportRouter } from "./v1/report.routes.js";
 import { salespersonRouter } from "./v1/salesperson.routes.js";
 import { productRouter } from "./v1/product.routes.js";
 import { regionRouter } from "./v1/region.routes.js";
+import { saleRouter } from "./v1/sale.routes.js";
 import { openApiSpec } from "../docs/openapi.js";
 import type { Container } from "../container.js";
 
@@ -29,6 +30,7 @@ export function createRouter(container: Container): Router {
   v1Router.use("/salespersons", salespersonRouter(container));
   v1Router.use("/products", productRouter(container));
   v1Router.use("/regions", regionRouter(container));
+  v1Router.use("/sales", saleRouter(container));
 
   router.use("/v1", v1Router);
 

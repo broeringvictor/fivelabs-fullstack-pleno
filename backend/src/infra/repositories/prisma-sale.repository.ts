@@ -19,4 +19,10 @@ export class PrismaSaleRepository implements ISaleRepository {
     });
     return rows.map(saleMapper.toDomain);
   }
+
+  async save(sale: Sale): Promise<void> {
+    await this.prisma.sale.create({
+      data: saleMapper.toPersistence(sale),
+    });
+  }
 }

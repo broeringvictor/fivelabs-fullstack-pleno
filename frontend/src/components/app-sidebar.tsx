@@ -3,7 +3,6 @@
 import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -14,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, FolderIcon, UsersIcon, Settings2Icon, CircleHelpIcon, SearchIcon,  CommandIcon } from "lucide-react"
+import { LayoutDashboardIcon, CommandIcon, PlusCircleIcon } from "lucide-react"
 
 const data = {
   user: {
@@ -29,33 +28,11 @@ const data = {
       icon: <LayoutDashboardIcon />,
     },
     {
-      title: "Campanhas",
-      url: "/dashboard",
-      icon: <FolderIcon />,
-    },
-    {
-      title: "Vendedores",
-      url: "/dashboard",
-      icon: <UsersIcon />,
+      title: "Nova Venda",
+      url: "/nova-venda",
+      icon: <PlusCircleIcon />,
     },
   ],
-  navSecondary: [
-    {
-      title: "Configurações",
-      url: "#",
-      icon: <Settings2Icon />,
-    },
-    {
-      title: "Ajuda",
-      url: "#",
-      icon: <CircleHelpIcon />,
-    },
-    {
-      title: "Busca",
-      url: "#",
-      icon: <SearchIcon />,
-    },
-  ]
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -76,7 +53,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
