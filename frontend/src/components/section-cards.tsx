@@ -69,11 +69,12 @@ function StatCard({ title, value, trend, trendType, footerText, icon, isLoading 
 
 export function SectionCards({ data, isLoading }: SectionCardsProps) {
   const formatCurrency = (val: string = "0") => {
+    const amount = parseFloat(val);
     return new Intl.NumberFormat("pt-BR", { 
       style: "currency", 
       currency: data?.currency || "BRL",
-      maximumFractionDigits: 0 
-    }).format(parseFloat(val))
+      maximumFractionDigits: amount >= 1000 ? 0 : 2
+    }).format(amount)
   }
 
   return (
