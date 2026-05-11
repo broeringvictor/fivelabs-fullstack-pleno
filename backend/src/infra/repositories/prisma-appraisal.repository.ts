@@ -49,6 +49,13 @@ export class PrismaAppraisalRepository implements IAppraisalRepository {
     return row ? appraisalMapper.toDomain(row) : null;
   }
 
+  async findAll(): Promise<Appraisal[]> {
+    const rows = await this.prisma.appraisal.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return rows.map(appraisalMapper.toDomain);
+  }
+
   async claimNextPending(): Promise<Appraisal | null> {
     const rows = await this.prisma.$queryRaw<any[]>`
       UPDATE "Appraisal"

@@ -11,6 +11,7 @@ export interface IAppraisalRepository {
   findById(id: string): Promise<AppraisalWithResults | null>;
   findLatestCompleted(): Promise<AppraisalWithResults | null>;
   findLatest(): Promise<Appraisal | null>;
+  findAll(): Promise<Appraisal[]>;
   claimNextPending(): Promise<Appraisal | null>;
   saveResults(results: AppraisalResult[]): Promise<void>;
   markDone(id: string, finishedAt: Date): Promise<void>;

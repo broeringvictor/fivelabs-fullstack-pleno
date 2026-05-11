@@ -34,6 +34,12 @@ export class InMemoryAppraisalRepository implements IAppraisalRepository {
     );
   }
 
+  async findAll(): Promise<Appraisal[]> {
+    return [...this.appraisals.values()].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
+  }
+
   async claimNextPending(): Promise<Appraisal | null> {
     return (
       [...this.appraisals.values()].find(

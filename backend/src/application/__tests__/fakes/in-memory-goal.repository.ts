@@ -19,4 +19,10 @@ export class InMemoryGoalRepository implements IGoalRepository {
       ({ goal }) => goal.period.start <= now && now <= goal.period.end && !goal.deletedAt,
     );
   }
+
+  async findByIds(ids: string[]): Promise<Goal[]> {
+    return [...this.store.values()]
+      .filter(({ goal }) => ids.includes(goal.id))
+      .map(({ goal }) => goal);
+  }
 }

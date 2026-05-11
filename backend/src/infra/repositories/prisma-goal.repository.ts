@@ -51,6 +51,14 @@ export class PrismaGoalRepository implements IGoalRepository {
     return rows.map(row => this.rowToGoalWithTree(row));
   }
 
+  async findByIds(ids: string[]): Promise<Goal[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.prisma.goal.findMany({
+      where: { id: { in: ids } },
+    });
+    return rows.map(goalMapper.toDomain);
+  }
+
   private rowToGoalWithTree(row: any): GoalWithTree {
     const groups = row.conditionGroups.map((g: any) => conditionGroupMapper.toDomain(g));
     const conditions = row.conditionGroups.flatMap((g: any) =>
