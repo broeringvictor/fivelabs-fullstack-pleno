@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:18-alpine
+    image: postgres:16-alpine
     container_name: express-postgres
     restart: unless-stopped
     env_file: env.example
@@ -29,7 +29,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    command: sh -c "npx prisma db push && npx tsx prisma/seed.ts && npm run dev"
+    command: sh -c "npm install && npx prisma db push && npx tsx prisma/seed.ts && npm run dev"
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,7 +43,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    command: npm run dev:worker
+    command: sh -c "npm install && npm run dev:worker"
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,7 +61,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: npm run dev -- --host
+    command: sh -c "npm install && npm run dev -- --host"
 
 volumes:
   postgres_data:
